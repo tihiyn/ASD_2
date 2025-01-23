@@ -5,25 +5,13 @@ public class SimpleTreeNode<T>
     public T NodeValue;
     public SimpleTreeNode<T> Parent;
     public List<SimpleTreeNode<T>> Children;
+    public int level;
 
     public SimpleTreeNode(T val, SimpleTreeNode<T> parent)
     {
         NodeValue = val;
         Parent = parent;
         Children = null;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        SimpleTreeNode<?> that = (SimpleTreeNode<?>) o;
-        return Objects.equals(NodeValue, that.NodeValue) && Objects.equals(Parent, that.Parent) && Objects.equals(Children, that.Children);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(NodeValue, Parent, Children);
     }
 }
 
@@ -40,6 +28,7 @@ class SimpleTree<T>
     {
         if (ParentNode == null) {
             Root = NewChild;
+            NewChild.level = 0;
             return;
         }
 
@@ -49,6 +38,22 @@ class SimpleTree<T>
 
         NewChild.Parent = ParentNode;
         ParentNode.Children.add(NewChild);
+
+        NewChild.level = ParentNode.level + 1;
+        if (NewChild.Children == null) {
+            return;
+        }
+        incrementChildrenLevels(NewChild);
+    }
+
+    private void incrementChildrenLevels(SimpleTreeNode<T> parent) {
+        for (SimpleTreeNode<T> child: parent.Children) {
+            child.level = parent.level + 1;
+
+            if (child.Children != null) {
+                incrementChildrenLevels(child);
+            }
+        }
     }
 
     public void DeleteNode(SimpleTreeNode<T> NodeToDelete)
@@ -159,6 +164,66 @@ class SimpleTree<T>
         }
 
         return counter;
+    }
+
+    public boolean isSymmetrical() {
+        if (Root == null) {
+            return true;
+        }
+
+        return checkSymmetry(Root);
+    }
+
+    private boolean checkSymmetry(SimpleTreeNode<T> parent) {
+        if (parent.Children == null) {
+            return true;
+        }
+
+        boolean isSymmetry;
+        for (int i = 0; i < parent.Children.size() / 2; i++) {
+            isSymmetry = checkPairSymmetry(parent.Children.get(i), parent.Children.get(parent.Children.size() - 1 - i));
+            if (!isSymmetry) {
+                return false;
+            }
+        }
+
+        if (parent.Children.size() % 2 != 0) {
+            return checkSymmetry(parent.Children.get(parent.Children.size() / 2));
+        }
+
+        return true;
+    }
+
+    private boolean checkPairSymmetry(SimpleTreeNode<T> first, SimpleTreeNode<T> second) {
+        if (!Objects.equals(first.NodeValue, second.NodeValue)) {
+            return false;
+        }
+
+        if ((first.Children == null) != (second.Children == null)) {
+            return false;
+        }
+
+        if (first.Children == null) {
+            return true;
+        }
+
+        if (first.Children.size() != second.Children.size()) {
+            return false;
+        }
+
+        List<SimpleTreeNode<T>> childrenBoth = new ArrayList<>();
+        childrenBoth.addAll(first.Children);
+        childrenBoth.addAll(second.Children);
+
+        boolean isEquals;
+        for (int i = 0; i < childrenBoth.size() / 2; i++) {
+            isEquals = checkPairSymmetry(childrenBoth.get(i), childrenBoth.get(childrenBoth.size() - 1 - i));
+            if (!isEquals) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 
