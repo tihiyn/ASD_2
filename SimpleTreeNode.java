@@ -179,10 +179,10 @@ class SimpleTree<T>
             return true;
         }
 
-        boolean isSymmetry;
+        boolean isSymmetrical;
         for (int i = 0; i < parent.Children.size() / 2; i++) {
-            isSymmetry = checkPairSymmetry(parent.Children.get(i), parent.Children.get(parent.Children.size() - 1 - i));
-            if (!isSymmetry) {
+            isSymmetrical = checkPairSymmetry(parent.Children.get(i), parent.Children.get(parent.Children.size() - 1 - i));
+            if (!isSymmetrical) {
                 return false;
             }
         }
