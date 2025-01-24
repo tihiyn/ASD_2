@@ -171,25 +171,15 @@ class BST<T>
 
     public int Count()
     {
-        if (Root == null) {
-            return 0;
-        }
-
         return countRecursive(Root);
     }
 
     private int countRecursive(BSTNode<T> node) {
-        int nodeCounter = 1;
-
-        if (node.LeftChild != null) {
-            nodeCounter += countRecursive(node.LeftChild);
+        if (node == null) {
+            return 0;
         }
 
-        if (node.RightChild != null) {
-            nodeCounter += countRecursive(node.RightChild);
-        }
-
-        return nodeCounter;
+        return 1 + countRecursive(node.LeftChild) + countRecursive(node.RightChild);
     }
 }
 
