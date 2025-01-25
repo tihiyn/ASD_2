@@ -124,7 +124,6 @@ class BST<T>
         }
 
         BSTNode<T> nodeToDelete = found.Node;
-
         if (nodeToDelete.LeftChild == null && nodeToDelete.RightChild == null) {
             deleteChildFromParent(nodeToDelete);
             return true;
@@ -143,6 +142,12 @@ class BST<T>
         }
 
         BSTNode<T> successor = FinMinMax(nodeToDelete.RightChild, false);
+        if (successor.NodeKey == nodeToDelete.RightChild.NodeKey) {
+            copyKeyValue(successor, nodeToDelete);
+            nodeToDelete.RightChild = null;
+            return true;
+        }
+
         if (successor.RightChild == null) {
             copyKeyValue(successor, nodeToDelete);
             successor.Parent.LeftChild = null;
@@ -156,6 +161,11 @@ class BST<T>
     }
 
     private void deleteChildFromParent(BSTNode<T> nodeToDelete) {
+        if (nodeToDelete.Parent == null) {
+            Root = null;
+            return;
+        }
+
         if (nodeToDelete.NodeKey < nodeToDelete.Parent.NodeKey) {
             nodeToDelete.Parent.LeftChild = null;
             return;
