@@ -191,5 +191,125 @@ class BST<T>
 
         return 1 + countRecursive(node.LeftChild) + countRecursive(node.RightChild);
     }
+    public boolean isEquivalent(BST<T> anotherTree) {
+        return isNodesEqualsRecursive(this.Root, anotherTree.Root);
+    }
+
+    private boolean isNodesEqualsRecursive(BSTNode<T> firstNode, BSTNode<T> secondNode) {
+        if ((firstNode == null) != (secondNode == null)) {
+            return false;
+        }
+
+        if (firstNode == null) {
+            return true;
+        }
+
+        if (firstNode.NodeKey != secondNode.NodeKey || !firstNode.NodeValue.equals(secondNode.NodeValue)) {
+            return false;
+        }
+
+        return isNodesEqualsRecursive(firstNode.LeftChild, secondNode.LeftChild)
+                && isNodesEqualsRecursive(firstNode.RightChild, secondNode.RightChild);
+    }
+
+    public List<List<BSTNode<T>>> getRoutesOfReqLength(int reqLength) {
+        List<List<BSTNode<T>>> routesList = new ArrayList<>((int) Math.pow(2, reqLength));
+        if (Root == null) {
+            return routesList;
+        }
+
+        getRoutesOfReqLengthRecursive(routesList, new ArrayList<>(), Root, 0, reqLength);
+
+        return routesList;
+    }
+
+    private void getRoutesOfReqLengthRecursive(List<List<BSTNode<T>>> routesList, List<BSTNode<T>> currentRoute, BSTNode<T> node,
+                                               final int currentLength, final int reqLength) {
+        currentRoute.add(node);
+        if (currentLength == reqLength) {
+            routesList.add(currentRoute);
+            return;
+        }
+
+        if (node.LeftChild != null) {
+            getRoutesOfReqLengthRecursive(routesList, new ArrayList<>(currentRoute), node.LeftChild, currentLength + 1,
+                    reqLength);
+        }
+
+        if (node.RightChild != null) {
+            getRoutesOfReqLengthRecursive(routesList, new ArrayList<>(currentRoute), node.RightChild, currentLength + 1,
+                    reqLength);
+        }
+    }
+
+    public <U extends Number> List<List<BSTNode<U>>> getRoutesWithMaxNodesValueSum() {
+        List<List<BSTNode<U>>> routesList = new ArrayList<>();
+        if (Root == null) {
+            return routesList;
+        }
+
+        try {
+            getRoutesWithMaxNodesValueSumRecursive(routesList, new ArrayList<>(), (BSTNode<U>) Root, 0,
+                    new AtomicInteger(0));
+        }
+        catch (ClassCastException e) {
+            System.out.println("Значения узлов дерева должны быть числами");
+            throw e;
+        }
+
+        return routesList;
+    }
+
+    private <U extends Number> void getRoutesWithMaxNodesValueSumRecursive(List<List<BSTNode<U>>> routesList,
+                                                                           List<BSTNode<U>> currentRoute, BSTNode<U> node,
+                                                                           int currentSum, AtomicInteger maxSum) {
+        currentRoute.add(node);
+        currentSum += node.NodeValue.intValue();
+
+        boolean isNodeLeaf = node.LeftChild == null && node.RightChild == null;
+        if (isNodeLeaf && currentSum > maxSum.get()) {
+            maxSum.set(currentSum);
+            routesList.clear();
+            routesList.add(currentRoute);
+            return;
+        }
+
+        if (isNodeLeaf && currentSum == maxSum.get()) {
+            routesList.add(currentRoute);
+        }
+
+        if (node.LeftChild != null) {
+            getRoutesWithMaxNodesValueSumRecursive(routesList, new ArrayList<>(currentRoute), node.LeftChild, currentSum, maxSum);
+        }
+
+        if (node.RightChild != null) {
+            getRoutesWithMaxNodesValueSumRecursive(routesList, new ArrayList<>(currentRoute), node.RightChild, currentSum, maxSum);
+        }
+    }
+
+    public boolean isSymmetrical() {
+        if (Root == null) {
+            return true;
+        }
+
+        return isSymmetricalRecursive(Root.LeftChild, Root.RightChild);
+    }
+
+    private boolean isSymmetricalRecursive(BSTNode<T> firstNode, BSTNode<T> secondNode) {
+        if ((firstNode == null) != (secondNode == null)) {
+            return false;
+        }
+
+        if (firstNode == null) {
+            return true;
+        }
+
+        if (!firstNode.NodeValue.equals(secondNode.NodeValue)) {
+            return false;
+        }
+
+        return isSymmetricalRecursive(firstNode.LeftChild, secondNode.RightChild)
+                && isSymmetricalRecursive(firstNode.RightChild, secondNode.LeftChild);
+    }
 }
 
