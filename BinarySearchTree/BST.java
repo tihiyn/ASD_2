@@ -191,6 +191,7 @@ class BST<T>
 
         return 1 + countRecursive(node.LeftChild) + countRecursive(node.RightChild);
     }
+
     public boolean isEquivalent(BST<T> anotherTree) {
         return isNodesEqualsRecursive(this.Root, anotherTree.Root);
     }
@@ -208,8 +209,11 @@ class BST<T>
             return false;
         }
 
-        return isNodesEqualsRecursive(firstNode.LeftChild, secondNode.LeftChild)
-                && isNodesEqualsRecursive(firstNode.RightChild, secondNode.RightChild);
+        if (!isNodesEqualsRecursive(firstNode.LeftChild, secondNode.LeftChild)) {
+            return false;
+        }
+
+        return isNodesEqualsRecursive(firstNode.RightChild, secondNode.RightChild);
     }
 
     public List<List<BSTNode<T>>> getRoutesOfReqLength(int reqLength) {
@@ -231,14 +235,14 @@ class BST<T>
             return;
         }
 
-        if (node.LeftChild != null) {
-            getRoutesOfReqLengthRecursive(routesList, new ArrayList<>(currentRoute), node.LeftChild, currentLength + 1,
-                    reqLength);
-        }
+        processChildForReqLength(routesList, currentRoute, node.LeftChild, currentLength, reqLength);
+        processChildForReqLength(routesList, currentRoute, node.RightChild, currentLength, reqLength);
+    }
 
-        if (node.RightChild != null) {
-            getRoutesOfReqLengthRecursive(routesList, new ArrayList<>(currentRoute), node.RightChild, currentLength + 1,
-                    reqLength);
+    private void processChildForReqLength(List<List<BSTNode<T>>> routesList, List<BSTNode<T>> currentRoute,
+                              BSTNode<T> childNode, final int currentLength, final int reqLength) {
+        if (childNode != null) {
+            getRoutesOfReqLengthRecursive(routesList, new ArrayList<>(currentRoute), childNode, currentLength + 1, reqLength);
         }
     }
 
@@ -278,12 +282,14 @@ class BST<T>
             routesList.add(currentRoute);
         }
 
-        if (node.LeftChild != null) {
-            getRoutesWithMaxNodesValueSumRecursive(routesList, new ArrayList<>(currentRoute), node.LeftChild, currentSum, maxSum);
-        }
+        processChildForMaxNodesSum(routesList, currentRoute, node.LeftChild, currentSum, maxSum);
+        processChildForMaxNodesSum(routesList, currentRoute, node.RightChild, currentSum, maxSum);
+    }
 
-        if (node.RightChild != null) {
-            getRoutesWithMaxNodesValueSumRecursive(routesList, new ArrayList<>(currentRoute), node.RightChild, currentSum, maxSum);
+    private <U extends Number> void processChildForMaxNodesSum(List<List<BSTNode<U>>> routesList, List<BSTNode<U>> currentRoute,
+                                                               BSTNode<U> childNode, int currentSum, AtomicInteger maxSum) {
+        if (childNode != null) {
+            getRoutesWithMaxNodesValueSumRecursive(routesList, new ArrayList<>(currentRoute), childNode, currentSum, maxSum);
         }
     }
 
@@ -308,8 +314,11 @@ class BST<T>
             return false;
         }
 
-        return isSymmetricalRecursive(firstNode.LeftChild, secondNode.RightChild)
-                && isSymmetricalRecursive(firstNode.RightChild, secondNode.LeftChild);
+        if (!isSymmetricalRecursive(firstNode.LeftChild, secondNode.RightChild)) {
+            return false;
+        }
+
+        return isSymmetricalRecursive(firstNode.RightChild, secondNode.LeftChild);
     }
 }
 
