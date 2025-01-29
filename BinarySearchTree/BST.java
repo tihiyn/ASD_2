@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 class BSTNode<T>
 {
@@ -319,6 +320,89 @@ class BST<T>
         }
 
         return isSymmetricalRecursive(firstNode.RightChild, secondNode.LeftChild);
+    }
+
+    public ArrayList<BSTNode> WideAllNodes() {
+        ArrayList<BSTNode> allNodes = new ArrayList<>();
+        if (Root == null) {
+            return allNodes;
+        }
+
+        allNodes.add(Root);
+        wideAllNodesRecursive(allNodes, new ArrayList<>(List.of(Root.LeftChild, Root.RightChild)));
+        return allNodes;
+    }
+
+    private void wideAllNodesRecursive(ArrayList<BSTNode> allNodes, ArrayList<BSTNode> nodesAtLevel) {
+        if (nodesAtLevel.isEmpty()) {
+            return;
+        }
+
+        ArrayList<BSTNode> nodesAtNextLevel = new ArrayList<>();
+        for (BSTNode node: nodesAtLevel) {
+            allNodes.add(node);
+            addChildToNextLevelList(nodesAtNextLevel, node.LeftChild);
+            addChildToNextLevelList(nodesAtNextLevel, node.RightChild);
+        }
+
+        wideAllNodesRecursive(allNodes, nodesAtNextLevel);
+    }
+
+    private void addChildToNextLevelList(ArrayList<BSTNode> nodesAtNextLevel, BSTNode child) {
+        if (child != null) {
+            nodesAtNextLevel.add(child);
+        }
+    }
+
+    public ArrayList<BSTNode> DeepAllNodes(int order) {
+        ArrayList<BSTNode> allNodes = new ArrayList<>();
+        if (Root == null) {
+            return allNodes;
+        }
+
+        switch (order) {
+            case 0 -> deepAllNodesInOrder(allNodes, Root);
+            case 1 -> deepAllNodesPostOrder(allNodes, Root);
+            case 2 -> deepAllNodesPreOrder(allNodes, Root);
+        }
+
+        return allNodes;
+    }
+
+    private void deepAllNodesInOrder(ArrayList<BSTNode> nodes, BSTNode node) {
+        addChildForInOrder(nodes, node.LeftChild);
+        nodes.add(node);
+        addChildForInOrder(nodes, node.RightChild);
+    }
+
+    private void addChildForInOrder(ArrayList<BSTNode> nodes, BSTNode child) {
+        if (child != null) {
+            deepAllNodesInOrder(nodes, child);
+        }
+    }
+
+    private void deepAllNodesPostOrder(ArrayList<BSTNode> nodes, BSTNode node) {
+        addChildForPostOrder(nodes, node.LeftChild);
+        addChildForPostOrder(nodes, node.RightChild);
+        nodes.add(node);
+    }
+
+    private void addChildForPostOrder(ArrayList<BSTNode> nodes, BSTNode child) {
+        if (child != null) {
+            deepAllNodesPostOrder(nodes, child);
+        }
+    }
+
+    private void deepAllNodesPreOrder(ArrayList<BSTNode> nodes, BSTNode node) {
+        nodes.add(node);
+        addChildForPreOrder(nodes, node.LeftChild);
+        addChildForPreOrder(nodes, node.RightChild);
+    }
+
+    private void addChildForPreOrder(ArrayList<BSTNode> nodes, BSTNode child) {
+        if (child != null) {
+            deepAllNodesPreOrder(nodes, child);
+        }
     }
 }
 
