@@ -6,17 +6,13 @@ class aBST
 
     public aBST(int depth)
     {
-        int tree_size = (int) (Math.pow(2, depth) - 1);
+        int tree_size = (int) (Math.pow(2, depth + 1) - 1);
         Tree = new Integer[ tree_size ];
         for(int i=0; i<tree_size; i++) Tree[i] = null;
     }
 
     public Integer FindKeyIndex(int key)
     {
-        if (Tree.length == 0) {
-            return null;
-        }
-
         if (Tree[0] == null) {
             return 0;
         }
