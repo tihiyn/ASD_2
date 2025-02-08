@@ -708,5 +708,268 @@ class BSTTest {
 
         assertTrue(tree.isSymmetrical());
     }
+
+    @Test
+    void testWideAllNodesForEmptyTree() {
+        BST<Boolean> tree = new BST<>(null);
+        assertEquals(new ArrayList<>(), tree.WideAllNodes());
+    }
+
+    @Test
+    void testWideAllNodesForSingleNodeTree() {
+        BSTNode<String> root = new BSTNode<>(10, "test", null);
+        BST<String> tree = new BST<>(root);
+
+        assertEquals(new ArrayList<>(List.of(root)), tree.WideAllNodes());
+    }
+
+    @Test
+    void testWideAllNodes() {
+        BSTNode<Integer> root = new BSTNode<>(10, 2, null);
+        BST<Integer> tree = new BST<>(root);
+        BSTNode<Integer> leftNode = new BSTNode<>(7, 6, root);
+        BSTNode<Integer> rightNode = new BSTNode<>(15, 1, root);
+        root.LeftChild = leftNode; root.RightChild = rightNode;
+        BSTNode<Integer> leftLeftNode = new BSTNode<>(6, 1, leftNode);
+        BSTNode<Integer> rightLeftNode = new BSTNode<>(8, 2, leftNode);
+        leftNode.LeftChild = leftLeftNode; leftNode.RightChild = rightLeftNode;
+        BSTNode<Integer> leftRightNode = new BSTNode<>(12, 5, rightNode);
+        BSTNode<Integer> rightRightNode = new BSTNode<>(16, 1, rightNode);
+        rightNode.LeftChild = leftRightNode; rightNode.RightChild = rightRightNode;
+        BSTNode<Integer> rightLeftRightNode = new BSTNode<>(14, 2, leftRightNode);
+        leftRightNode.RightChild = rightLeftRightNode;
+        BSTNode<Integer> rightRightRightNode = new BSTNode<>(20, 1, rightRightNode);
+        rightRightNode.RightChild = rightRightRightNode;
+
+        ArrayList<BSTNode> expectedRes = new ArrayList<>(List.of(root, leftNode, rightNode, leftLeftNode, rightLeftNode,
+                leftRightNode, rightRightNode, rightLeftRightNode, rightRightRightNode));
+        ArrayList<BSTNode> actualRes = tree.WideAllNodes();
+
+        assertEquals(expectedRes, actualRes);
+    }
+
+    @Test
+    void testDeepAllNodesInOderForEmptyList() {
+        BST<Long> tree = new BST<>(null);
+        assertEquals(new ArrayList<>(), tree.DeepAllNodes(0));
+    }
+
+    @Test
+    void testDeepAllNodesInOrderForSingleNodeTree() {
+        BSTNode<Double> root = new BSTNode<>(10, 0.2, null);
+        BST<Double> tree = new BST<>(root);
+
+        assertEquals(new ArrayList<>(List.of(root)), tree.WideAllNodes());
+    }
+
+    @Test
+    void testDeepAllNodesInOrder() {
+        BSTNode<Integer> root = new BSTNode<>(10, 2, null);
+        BST<Integer> tree = new BST<>(root);
+        BSTNode<Integer> leftNode = new BSTNode<>(7, 6, root);
+        BSTNode<Integer> rightNode = new BSTNode<>(15, 1, root);
+        root.LeftChild = leftNode; root.RightChild = rightNode;
+        BSTNode<Integer> leftLeftNode = new BSTNode<>(6, 1, leftNode);
+        BSTNode<Integer> rightLeftNode = new BSTNode<>(8, 2, leftNode);
+        leftNode.LeftChild = leftLeftNode; leftNode.RightChild = rightLeftNode;
+        BSTNode<Integer> leftRightNode = new BSTNode<>(12, 5, rightNode);
+        BSTNode<Integer> rightRightNode = new BSTNode<>(16, 1, rightNode);
+        rightNode.LeftChild = leftRightNode; rightNode.RightChild = rightRightNode;
+        BSTNode<Integer> rightLeftRightNode = new BSTNode<>(14, 2, leftRightNode);
+        leftRightNode.RightChild = rightLeftRightNode;
+        BSTNode<Integer> rightRightRightNode = new BSTNode<>(20, 1, rightRightNode);
+        rightRightNode.RightChild = rightRightRightNode;
+
+        ArrayList<BSTNode> expectedRes = new ArrayList<>(List.of(leftLeftNode, leftNode, rightLeftNode, root,
+                leftRightNode, rightLeftRightNode, rightNode, rightRightNode, rightRightRightNode));
+        ArrayList<BSTNode> actualRes = tree.DeepAllNodes(0);
+
+        assertEquals(expectedRes, actualRes);
+    }
+
+    @Test
+    void testDeepAllNodesPostOrderForEmptyTree() {
+        BST<Byte> tree = new BST<>(null);
+
+        assertEquals(new ArrayList<>(), tree.DeepAllNodes(1));
+    }
+
+    @Test
+    void testDeepAllNodesPostOrderForSingleNodeTree() {
+        BSTNode<Character> root = new BSTNode<>(23, 'h', null);
+        BST<Character> tree = new BST<>(root);
+
+        assertEquals(new ArrayList<>(List.of(root)), tree.DeepAllNodes(1));
+    }
+
+    @Test
+    void testDeepAllNodesPostOrder() {
+        BSTNode<Integer> root = new BSTNode<>(10, 2, null);
+        BST<Integer> tree = new BST<>(root);
+        BSTNode<Integer> leftNode = new BSTNode<>(7, 6, root);
+        BSTNode<Integer> rightNode = new BSTNode<>(15, 1, root);
+        root.LeftChild = leftNode; root.RightChild = rightNode;
+        BSTNode<Integer> leftLeftNode = new BSTNode<>(6, 1, leftNode);
+        BSTNode<Integer> rightLeftNode = new BSTNode<>(8, 2, leftNode);
+        leftNode.LeftChild = leftLeftNode; leftNode.RightChild = rightLeftNode;
+        BSTNode<Integer> leftRightNode = new BSTNode<>(12, 5, rightNode);
+        BSTNode<Integer> rightRightNode = new BSTNode<>(16, 1, rightNode);
+        rightNode.LeftChild = leftRightNode; rightNode.RightChild = rightRightNode;
+        BSTNode<Integer> rightLeftRightNode = new BSTNode<>(14, 2, leftRightNode);
+        leftRightNode.RightChild = rightLeftRightNode;
+        BSTNode<Integer> rightRightRightNode = new BSTNode<>(20, 1, rightRightNode);
+        rightRightNode.RightChild = rightRightRightNode;
+
+        ArrayList<BSTNode> expectedRes = new ArrayList<>(List.of(leftLeftNode, rightLeftNode, leftNode, rightLeftRightNode,
+                leftRightNode, rightRightRightNode, rightRightNode, rightNode, root));
+        ArrayList<BSTNode> actualRes = tree.DeepAllNodes(1);
+
+        assertEquals(expectedRes, actualRes);
+    }
+
+    @Test
+    void testDeepAllNodesPreOrderForEmptyTree() {
+        BST<Byte> tree = new BST<>(null);
+        assertEquals(new ArrayList<>(), tree.DeepAllNodes(2));
+    }
+
+    @Test
+    void testDeepAllNodesPreOrderForSingleNodeTree() {
+        BSTNode<String> root = new BSTNode<>(3, "3", null);
+        BST<String> tree = new BST<>(root);
+
+        assertEquals(new ArrayList<>(List.of(root)), tree.DeepAllNodes(2));
+    }
+
+    @Test
+    void testDeepAllNodesPreOrder() {
+        BSTNode<Integer> root = new BSTNode<>(10, 2, null);
+        BST<Integer> tree = new BST<>(root);
+        BSTNode<Integer> leftNode = new BSTNode<>(7, 6, root);
+        BSTNode<Integer> rightNode = new BSTNode<>(15, 1, root);
+        root.LeftChild = leftNode; root.RightChild = rightNode;
+        BSTNode<Integer> leftLeftNode = new BSTNode<>(6, 1, leftNode);
+        BSTNode<Integer> rightLeftNode = new BSTNode<>(8, 2, leftNode);
+        leftNode.LeftChild = leftLeftNode; leftNode.RightChild = rightLeftNode;
+        BSTNode<Integer> leftRightNode = new BSTNode<>(12, 5, rightNode);
+        BSTNode<Integer> rightRightNode = new BSTNode<>(16, 1, rightNode);
+        rightNode.LeftChild = leftRightNode; rightNode.RightChild = rightRightNode;
+        BSTNode<Integer> rightLeftRightNode = new BSTNode<>(14, 2, leftRightNode);
+        leftRightNode.RightChild = rightLeftRightNode;
+        BSTNode<Integer> rightRightRightNode = new BSTNode<>(20, 1, rightRightNode);
+        rightRightNode.RightChild = rightRightRightNode;
+
+        ArrayList<BSTNode> expectedRes = new ArrayList<>(List.of(root, leftNode, leftLeftNode, rightLeftNode, rightNode, leftRightNode, rightLeftRightNode, rightRightNode, rightRightRightNode));
+        ArrayList<BSTNode> actualRes = tree.DeepAllNodes(2);
+
+        assertEquals(expectedRes, actualRes);
+    }
+
+    @Test
+    void testInvertEmptyTree() {
+        BST<Short> tree = new BST<>(null);
+        tree.invert();
+        assertNull(tree.Root);
+    }
+
+    @Test
+    void testInvertSimpleTree() {
+        BSTNode<String> root = new BSTNode<>(5, "5", null);
+        BST<String> tree = new BST<>(root);
+        BSTNode<String> leftChild = new BSTNode<>(3, "3", root);
+        BSTNode<String> rightChild = new BSTNode<>(8, "8", root);
+        root.LeftChild = leftChild; root.RightChild = rightChild;
+
+        tree.invert();
+
+        assertEquals(5, tree.Root.NodeKey);
+        assertEquals(8, tree.Root.LeftChild.NodeKey);
+        assertEquals(3, tree.Root.RightChild.NodeKey);
+    }
+
+    @Test
+    void testInvert() {
+        BSTNode<Integer> root = new BSTNode<>(10, 2, null);
+        BST<Integer> tree = new BST<>(root);
+        BSTNode<Integer> leftNode = new BSTNode<>(7, 6, root);
+        BSTNode<Integer> rightNode = new BSTNode<>(15, 1, root);
+        root.LeftChild = leftNode; root.RightChild = rightNode;
+        BSTNode<Integer> leftLeftNode = new BSTNode<>(6, 1, leftNode);
+        BSTNode<Integer> rightLeftNode = new BSTNode<>(8, 2, leftNode);
+        leftNode.LeftChild = leftLeftNode; leftNode.RightChild = rightLeftNode;
+        BSTNode<Integer> leftRightNode = new BSTNode<>(12, 5, rightNode);
+        BSTNode<Integer> rightRightNode = new BSTNode<>(16, 1, rightNode);
+        rightNode.LeftChild = leftRightNode; rightNode.RightChild = rightRightNode;
+        BSTNode<Integer> rightLeftRightNode = new BSTNode<>(14, 2, leftRightNode);
+        leftRightNode.RightChild = rightLeftRightNode;
+        BSTNode<Integer> rightRightRightNode = new BSTNode<>(20, 1, rightRightNode);
+        rightRightNode.RightChild = rightRightRightNode;
+
+        ArrayList<BSTNode> inOrderBefore = tree.DeepAllNodes(0);
+        for (int i = 0; i < inOrderBefore.size() / 2; i++) {
+            BSTNode tmpToSwap = inOrderBefore.get(i);
+            inOrderBefore.set(i, inOrderBefore.get(inOrderBefore.size() - i - 1));
+            inOrderBefore.set(inOrderBefore.size() - i - 1, tmpToSwap);
+        }
+
+        tree.invert();
+
+        ArrayList<BSTNode> inOrderAfter = tree.DeepAllNodes(0);
+        assertEquals(inOrderBefore, inOrderAfter);
+    }
+
+    @Test
+    void testFindMaxSumLevelInEmptyTree() {
+        BST<Boolean> tree = new BST<>(null);
+        assertNull(tree.findMaxSumLevel());
+    }
+
+    @Test
+    void testFindMaxSumLevelInSingleNodeTree() {
+        BSTNode<Integer> root = new BSTNode<>(5, 5, null);
+        BST<Integer> tree = new BST<>(root);
+
+        assertEquals(0, tree.findMaxSumLevel());
+    }
+
+    @Test
+    void testFindMaxSumLevelInNotNumberTree() {
+        BSTNode<String> root = new BSTNode<>(5, "5", null);
+        BST<String> tree = new BST<>(root);
+
+        assertThrows(ClassCastException.class, tree::findMaxSumLevel);
+    }
+
+    @Test
+    void testFindMaxSumLevelWithEqualsSum() {
+        BSTNode<Integer> root = new BSTNode<>(10, 4, null);
+        BST<Integer> tree = new BST<>(root);
+        BSTNode<Integer> leftNode = new BSTNode<>(5, 3, root);
+        BSTNode<Integer> rightNode = new BSTNode<>(13, 1, root);
+        root.LeftChild = leftNode; root.RightChild = rightNode;
+
+        assertEquals(0, tree.findMaxSumLevel());
+    }
+
+    @Test
+    void testFindMaxSumLevel() {
+        BSTNode<Integer> root = new BSTNode<>(10, 2, null);
+        BST<Integer> tree = new BST<>(root);
+        BSTNode<Integer> leftNode = new BSTNode<>(7, 3, root);
+        BSTNode<Integer> rightNode = new BSTNode<>(15, 1, root);
+        root.LeftChild = leftNode; root.RightChild = rightNode;
+        BSTNode<Integer> leftLeftNode = new BSTNode<>(6, 1, leftNode);
+        BSTNode<Integer> rightLeftNode = new BSTNode<>(8, 2, leftNode);
+        leftNode.LeftChild = leftLeftNode; leftNode.RightChild = rightLeftNode;
+        BSTNode<Integer> leftRightNode = new BSTNode<>(12, 5, rightNode);
+        BSTNode<Integer> rightRightNode = new BSTNode<>(16, 1, rightNode);
+        rightNode.LeftChild = leftRightNode; rightNode.RightChild = rightRightNode;
+        BSTNode<Integer> rightLeftRightNode = new BSTNode<>(14, 2, leftRightNode);
+        leftRightNode.RightChild = rightLeftRightNode;
+        BSTNode<Integer> rightRightRightNode = new BSTNode<>(20, 1, rightRightNode);
+        rightRightNode.RightChild = rightRightRightNode;
+
+        assertEquals(2, tree.findMaxSumLevel());
+    }
 }
 

@@ -404,5 +404,74 @@ class BST<T>
             deepAllNodesPreOrder(nodes, child);
         }
     }
+    
+    public void invert() {
+        if (Root == null) {
+            return;
+        }
+
+        invertRecursive(Root);
+    }
+
+    private void invertRecursive(BSTNode<T> node) {
+        BSTNode<T> tmpToSwap = node.LeftChild;
+        node.LeftChild = node.RightChild;
+        node.RightChild = tmpToSwap;
+
+        callInvertWithCheck(node.LeftChild);
+        callInvertWithCheck(node.RightChild);
+    }
+
+    private void callInvertWithCheck(BSTNode<T> node) {
+        if (node != null) {
+            invertRecursive(node);
+        }
+    }
+
+    public Integer findMaxSumLevel() {
+        if (Root == null) {
+            return null;
+        }
+
+        try {
+            AtomicInteger maxSum = new AtomicInteger((Integer) Root.NodeValue);
+            List<BSTNode<T>> nodesAtNextLevel = new ArrayList<>();
+            addChildToNextLevelList(Root.LeftChild, nodesAtNextLevel);
+            addChildToNextLevelList(Root.RightChild, nodesAtNextLevel);
+
+            return findMaxSumLevelRecursive(nodesAtNextLevel, maxSum, 1, 0);
+        } catch (ClassCastException e) {
+            System.out.println("Значения узлов должны быть числами");
+            throw e;
+        }
+    }
+
+    private int findMaxSumLevelRecursive(List<BSTNode<T>> nodesAtCurrentLevel, AtomicInteger maxSum, final int level, int maxLevel) {
+        if (nodesAtCurrentLevel.isEmpty()) {
+            return maxLevel;
+        }
+
+        List<BSTNode<T>> nodesAtNextLevel = new ArrayList<>();
+        int maxSumAtCurrentLevel = 0;
+
+        for (BSTNode<T> node: nodesAtCurrentLevel) {
+            maxSumAtCurrentLevel += (int) node.NodeValue;
+            addChildToNextLevelList(node.LeftChild, nodesAtNextLevel);
+            addChildToNextLevelList(node.RightChild, nodesAtNextLevel);
+        }
+
+        if (maxSumAtCurrentLevel > maxSum.get()) {
+            maxSum.set(maxSumAtCurrentLevel);
+            maxLevel = level;
+        }
+
+        return findMaxSumLevelRecursive(nodesAtNextLevel, maxSum, level + 1, maxLevel);
+    }
+
+    private void addChildToNextLevelList(BSTNode<T> child, List<BSTNode<T>> nodesAtNextLevel) {
+        if (child != null) {
+            nodesAtNextLevel.add(child);
+        }
+    }
 }
 
