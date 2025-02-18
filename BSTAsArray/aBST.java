@@ -112,5 +112,114 @@ class aBST
 
         wideAllNodesRecursive(wideArray, nextLevelNodes, level + 1);
     }
+
+    public void deleteKey(int key) {
+        deleteKeyHelper(key);
+
+        if (isBalanced(0) >= 0) {
+            return;
+        }
+
+        Integer[] treeArrayWithoutNullValues = Arrays.stream(Tree).filter(Objects::nonNull).toArray(Integer[]::new);
+        Tree = balanceTree(treeArrayWithoutNullValues);
+    }
+
+    private void deleteKeyHelper(int key) {
+        Integer keyIndex = FindKeyIndex(key);
+        if (keyIndex < 0) {
+            return;
+        }
+
+        int leftChildIndex = keyIndex * 2 + 1;
+        int rightChildIndex = keyIndex * 2 + 2;
+        if ((leftChildIndex >= Tree.length || Tree[leftChildIndex] == null)
+                && (rightChildIndex >= Tree.length || Tree[rightChildIndex] == null)) {
+            Tree[keyIndex] = null;
+            return;
+        }
+
+        if (leftChildIndex >= Tree.length || Tree[leftChildIndex] == null
+                || rightChildIndex >= Tree.length || Tree[rightChildIndex] == null) {
+            deleteNodeWithOneChild(keyIndex, leftChildIndex, rightChildIndex);
+            return;
+        }
+
+        int successorIndex = findSupplierIndex(rightChildIndex);
+        if (successorIndex * 2 + 2 < Tree.length && Tree[successorIndex * 2 + 2] != null) {
+            Tree[keyIndex] = Tree[successorIndex];
+            Tree[successorIndex] = Tree[successorIndex * 2 + 2];
+            Tree[successorIndex * 2 + 2] = null;
+            return;
+        }
+
+        Tree[keyIndex] = Tree[successorIndex];
+        Tree[successorIndex] = null;
+    }
+
+    private void deleteNodeWithOneChild(int nodeIndex, int leftChildIndex, int rightChildIndex) {
+        if (leftChildIndex >= Tree.length || Tree[leftChildIndex] == null) {
+            Tree[nodeIndex] = Tree[rightChildIndex];
+            Tree[rightChildIndex] = null;
+            return;
+        }
+
+        Tree[nodeIndex] = Tree[leftChildIndex];
+        Tree[leftChildIndex] = null;
+    }
+
+    private int findSupplierIndex(int currentIndex) {
+        int supplierIndex = currentIndex;
+        for (; supplierIndex * 2 + 1 < Tree.length && Tree[supplierIndex * 2 + 1] != null; supplierIndex = supplierIndex * 2 + 1) {}
+
+        return supplierIndex;
+    }
+
+    private int isBalanced(int currentIndex) {
+        int leftChildIndex = currentIndex * 2 + 1;
+        int rightChildIndex = currentIndex * 2 + 2;
+
+        int leftDepth = leftChildIndex < Tree.length && Tree[leftChildIndex] != null ? isBalanced(leftChildIndex) : 0;
+        int rightDepth = rightChildIndex < Tree.length && Tree[rightChildIndex] != null ? isBalanced(rightChildIndex) : 0;
+
+        if (leftDepth < 0 || rightDepth < 0) {
+            return -1;
+        }
+
+        if (Math.abs(leftDepth - rightDepth) <= 1) {
+            return Math.max(leftDepth, rightDepth) + 1;
+        }
+
+        return -1;
+    }
+
+    private Integer[] balanceTree(Integer[] inputArray) {
+        Arrays.sort(inputArray);
+        Integer[] balancedTree = new Integer[calcBalancedTreeArrayLength(inputArray.length)];
+        balanceTreeRecursive(balancedTree, inputArray, 0, 0, inputArray.length - 1);
+
+        return balancedTree;
+    }
+
+    private void balanceTreeRecursive(Integer[] balancedTree, Integer[] inputArray, final int currentIndex,
+                                      final int leftBound, final int rightBound) {
+        if (leftBound > rightBound) {
+            return;
+        }
+
+        if (leftBound == rightBound) {
+            balancedTree[currentIndex] = inputArray[leftBound];
+            return;
+        }
+
+        int centralIndex = (rightBound - leftBound) / 2 + leftBound;
+        balancedTree[currentIndex] = inputArray[centralIndex];
+        balanceTreeRecursive(balancedTree, inputArray, currentIndex * 2 + 1, leftBound, centralIndex - 1);
+        balanceTreeRecursive(balancedTree, inputArray, currentIndex * 2 + 2, centralIndex + 1, rightBound);
+    }
+
+    private int calcBalancedTreeArrayLength(int oldLength) {
+        return (int) Math.pow(2,
+                BigDecimal.valueOf(Math.log(oldLength) / Math.log(2)).setScale(0, RoundingMode.UP).doubleValue()) - 1;
+    }
 }
 

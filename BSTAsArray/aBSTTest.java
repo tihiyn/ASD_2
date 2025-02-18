@@ -201,5 +201,211 @@ class aBSTTest {
         Integer[] res = tree.wideAllNodes();
         assertArrayEquals(tree.Tree, res);
     }
+
+    @Test
+    void testDeleteLeaf() {
+        aBST tree = new aBST(3);
+
+        tree.AddKey(11);
+        tree.AddKey(7);
+        tree.AddKey(18);
+        tree.AddKey(4);
+        tree.AddKey(9);
+        tree.AddKey(15);
+        tree.AddKey(21);
+        tree.AddKey(1);
+        tree.AddKey(8);
+        tree.AddKey(10);
+        tree.AddKey(12);
+        tree.AddKey(16);
+
+        Integer[] expected = tree.wideAllNodes();
+        expected[12] = null;
+
+        tree.deleteKey(16);
+        assertArrayEquals(expected, tree.Tree);
+    }
+
+    @Test
+    void testDeleteLeafWithRebuild() {
+        aBST tree = new aBST(3);
+
+        tree.AddKey(11);
+        tree.AddKey(7);
+        tree.AddKey(18);
+        tree.AddKey(4);
+        tree.AddKey(9);
+        tree.AddKey(15);
+        tree.AddKey(21);
+        tree.AddKey(1);
+        tree.AddKey(8);
+        tree.AddKey(10);
+        tree.AddKey(16);
+
+        tree.deleteKey(21);
+
+        Integer[] expected = new Integer[] {9, 4, 15, 1, 7, 10, 16, null, null, null, 8, null, 11, null, 18};
+        assertArrayEquals(expected, tree.Tree);
+    }
+
+    @Test
+    void testDeleteNodeWithChild() {
+        aBST tree = new aBST(3);
+
+        tree.AddKey(11);
+        tree.AddKey(7);
+        tree.AddKey(18);
+        tree.AddKey(4);
+        tree.AddKey(9);
+        tree.AddKey(15);
+        tree.AddKey(21);
+        tree.AddKey(1);
+        tree.AddKey(8);
+        tree.AddKey(10);
+        tree.AddKey(16);
+
+        Integer[] expected = tree.wideAllNodes();
+        expected[5] = 16;
+        expected[12] = null;
+
+        tree.deleteKey(15);
+
+        assertArrayEquals(expected, tree.Tree);
+    }
+
+    @Test
+    void testDeleteNodeWithChildren() {
+        aBST tree = new aBST(3);
+
+        tree.AddKey(11);
+        tree.AddKey(7);
+        tree.AddKey(18);
+        tree.AddKey(4);
+        tree.AddKey(9);
+        tree.AddKey(15);
+        tree.AddKey(21);
+        tree.AddKey(1);
+        tree.AddKey(8);
+        tree.AddKey(10);
+        tree.AddKey(16);
+
+        Integer[] expected = tree.wideAllNodes();
+        expected[1] = 8;
+        expected[9] = null;
+
+        tree.deleteKey(7);
+        assertArrayEquals(expected, tree.Tree);
+    }
+
+    @Test
+    void testDeleteNodeWithChildrenWithRebuild() {
+        aBST tree = new aBST(3);
+
+        tree.AddKey(11);
+        tree.AddKey(7);
+        tree.AddKey(18);
+        tree.AddKey(4);
+        tree.AddKey(9);
+        tree.AddKey(15);
+        tree.AddKey(21);
+        tree.AddKey(1);
+        tree.AddKey(8);
+        tree.AddKey(10);
+        tree.AddKey(16);
+
+        Integer[] expected = new Integer[] {9, 4, 15, 1, 7, 10, 16, null, null, null, 8, null, 11, null, 21};
+
+        tree.deleteKey(18);
+        assertArrayEquals(expected, tree.Tree);
+    }
+
+    @Test
+    void testDeleteNodeWithChildrenWithRightSupplier() {
+        aBST tree = new aBST(3);
+
+        tree.AddKey(11);
+        tree.AddKey(7);
+        tree.AddKey(18);
+        tree.AddKey(4);
+        tree.AddKey(9);
+        tree.AddKey(15);
+        tree.AddKey(21);
+        tree.AddKey(1);
+        tree.AddKey(10);
+        tree.AddKey(16);
+
+        Integer[] expected = tree.wideAllNodes();
+        expected[1] = 9;
+        expected[4] = 10;
+        expected[10] = null;
+
+        tree.deleteKey(7);
+        assertArrayEquals(expected, tree.Tree);
+    }
+
+    @Test
+    void testDeleteRoot() {
+        aBST tree = new aBST(3);
+
+        tree.AddKey(11);
+        tree.AddKey(7);
+        tree.AddKey(18);
+        tree.AddKey(4);
+        tree.AddKey(9);
+        tree.AddKey(15);
+        tree.AddKey(21);
+        tree.AddKey(1);
+        tree.AddKey(8);
+        tree.AddKey(10);
+        tree.AddKey(16);
+
+        Integer[] expected = tree.wideAllNodes();
+        expected[0] = 15;
+        expected[5] = 16;
+        expected[12] = null;
+
+        tree.deleteKey(11);
+        assertArrayEquals(expected, tree.Tree);
+    }
+
+    @Test
+    void testDeleteRootInSingleNodeTree() {
+        aBST tree = new aBST(0);
+        tree.AddKey(11);
+
+        tree.deleteKey(11);
+
+        assertArrayEquals(new Integer[1], tree.Tree);
+    }
+
+    @Test
+    void testDeleteNodeInEmptyTree() {
+        aBST tree = new aBST(0);
+
+        tree.deleteKey(4);
+
+        assertArrayEquals(new Integer[1], tree.Tree);
+    }
+
+    @Test
+    void testDeleteNotExistingNode() {
+        aBST tree = new aBST(3);
+
+        tree.AddKey(11);
+        tree.AddKey(7);
+        tree.AddKey(18);
+        tree.AddKey(4);
+        tree.AddKey(9);
+        tree.AddKey(15);
+        tree.AddKey(21);
+        tree.AddKey(1);
+        tree.AddKey(8);
+        tree.AddKey(10);
+        tree.AddKey(16);
+
+        Integer[] expected = tree.wideAllNodes();
+        tree.deleteKey(5);
+        assertArrayEquals(expected, tree.Tree);
+    }
 }
 
