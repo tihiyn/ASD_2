@@ -84,27 +84,27 @@ class BalancedBST
             return false;
         }
 
-        AtomicBoolean isCorrect = new AtomicBoolean(true);
-        List<BSTNode> previousNode = new ArrayList<>();
+        AtomicBoolean isBST = new AtomicBoolean(true);
+        List<BSTNode> previousNode = new ArrayList<>(1);
         previousNode.add(null);
-        inOrderTraversal(Root, previousNode, isCorrect);
-        return isCorrect.get();
+        inOrderTraversal(Root, previousNode, isBST);
+        return isBST.get();
     }
 
-    private void inOrderTraversal(BSTNode currentNode, List<BSTNode> previousNode, AtomicBoolean isCorrect) {
+    private void inOrderTraversal(BSTNode currentNode, List<BSTNode> previousNode, AtomicBoolean isBST) {
         if (currentNode == null) {
             return;
         }
-        
-        inOrderTraversal(currentNode.LeftChild, previousNode, isCorrect);
+
+        inOrderTraversal(currentNode.LeftChild, previousNode, isBST);
 
         if (previousNode.get(0) != null && previousNode.get(0).NodeKey >= currentNode.NodeKey) {
-            isCorrect.set(false);
+            isBST.set(false);
             return;
         }
 
         previousNode.set(0, currentNode);
-        inOrderTraversal(currentNode.RightChild, previousNode, isCorrect);
+        inOrderTraversal(currentNode.RightChild, previousNode, isBST);
     }
 }
 
