@@ -84,23 +84,27 @@ class BalancedBST
             return false;
         }
 
-        return isBSTRecursive(Root, null, null);
+        AtomicBoolean isCorrect = new AtomicBoolean(true);
+        List<BSTNode> previousNode = new ArrayList<>();
+        previousNode.add(null);
+        inOrderTraversal(Root, previousNode, isCorrect);
+        return isCorrect.get();
     }
 
-    private boolean isBSTRecursive(BSTNode node, final Integer minValue, final Integer maxValue) {
-        if (node == null) {
-            return true;
+    private void inOrderTraversal(BSTNode currentNode, List<BSTNode> previousNode, AtomicBoolean isCorrect) {
+        if (currentNode == null) {
+            return;
+        }
+        
+        inOrderTraversal(currentNode.LeftChild, previousNode, isCorrect);
+
+        if (previousNode.get(0) != null && previousNode.get(0).NodeKey >= currentNode.NodeKey) {
+            isCorrect.set(false);
+            return;
         }
 
-        if ((minValue != null && node.NodeKey <= minValue) || (maxValue != null && node.NodeKey >= maxValue)) {
-            return false;
-        }
-
-        if (!isBSTRecursive(node.LeftChild, minValue, node.NodeKey)) {
-            return false;
-        }
-
-        return isBSTRecursive(node.RightChild, node.NodeKey, maxValue);
+        previousNode.set(0, currentNode);
+        inOrderTraversal(currentNode.RightChild, previousNode, isCorrect);
     }
 }
 
