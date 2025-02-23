@@ -78,5 +78,29 @@ class BalancedBST
 
         return -1;
     }
+
+    public boolean isBST() {
+        if (Root == null) {
+            return false;
+        }
+
+        return isBSTRecursive(Root, null, null);
+    }
+
+    private boolean isBSTRecursive(BSTNode node, final Integer minValue, final Integer maxValue) {
+        if (node == null) {
+            return true;
+        }
+
+        if ((minValue != null && node.NodeKey <= minValue) || (maxValue != null && node.NodeKey >= maxValue)) {
+            return false;
+        }
+
+        if (!isBSTRecursive(node.LeftChild, minValue, node.NodeKey)) {
+            return false;
+        }
+
+        return isBSTRecursive(node.RightChild, node.NodeKey, maxValue);
+    }
 }
 
