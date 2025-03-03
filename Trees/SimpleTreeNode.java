@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class SimpleTreeNode<T>
+class SimpleTreeNode<T>
 {
     public T NodeValue;
     public SimpleTreeNode<T> Parent;
@@ -224,6 +224,34 @@ class SimpleTree<T>
         }
 
         return true;
+    }
+
+    public ArrayList<T> EvenTrees()
+    {
+        ArrayList<T> cutList = new ArrayList<>();
+        if (Root == null || Count() % 2 != 0) {
+            return cutList;
+        }
+
+        evenTreesRecursive(cutList, Root);
+
+        return cutList;
+    }
+
+    private void evenTreesRecursive(ArrayList<T> cutList, SimpleTreeNode<T> currentNode) {
+        for (SimpleTreeNode<T> node: currentNode.Children) {
+            int currentBranchCount = CountRecursive(node);
+            if (currentBranchCount == 1) {
+                continue;
+            }
+
+            if (currentBranchCount % 2 == 0) {
+                cutList.add(currentNode.NodeValue);
+                cutList.add(node.NodeValue);
+            }
+
+            evenTreesRecursive(cutList, node);
+        }
     }
 }
 
