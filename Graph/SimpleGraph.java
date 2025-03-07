@@ -1,8 +1,6 @@
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.Arrays.stream;
-
 class Vertex
 {
     public int Value;
@@ -21,7 +19,7 @@ class SimpleGraph
     int [][] m_adjacency;
     int max_vertex;
     int emptySlot;
-    public Stack<Integer> stackToDFS;
+    Stack<Integer> stackToDFS;
 
     public SimpleGraph(int size)
     {
@@ -92,25 +90,26 @@ class SimpleGraph
     public ArrayList<Vertex> DepthFirstSearch(int VFrom, int VTo)
     {
         stackToDFS.clear();
-        stream(vertex).forEach(v -> v.hit = false);
+        Arrays.stream(vertex).forEach(v -> v.hit = false);
         List<Integer> path =  DepthFirstSearchRecursive(VFrom, vertex[VTo].Value);
 
         return (ArrayList<Vertex>) path.stream().map(index -> vertex[index]).collect(Collectors.toList());
     }
 
-    private List<Integer> DepthFirstSearchRecursive(int currentVertexIndex, final int targetVertexValue) {
+    private List<Integer> DepthFirstSearchRecursive(final int currentVertexIndex, final int targetVertexValue) {
         vertex[currentVertexIndex].hit = true;
+
         stackToDFS.push(currentVertexIndex);
 
         for (int i = 0; i < max_vertex; i++) {
-            if (m_adjacency[currentVertexIndex][i] != 0 && vertex[i].Value == targetVertexValue) {
+            if (m_adjacency[currentVertexIndex][i] == 1 && vertex[i].Value == targetVertexValue) {
                 stackToDFS.push(i);
                 return new ArrayList<>(stackToDFS);
             }
         }
 
         for (int i = 0; i < max_vertex; i++) {
-            if (m_adjacency[currentVertexIndex][i] != 0 && !vertex[i].hit) {
+            if (m_adjacency[currentVertexIndex][i] == 1 && !vertex[i].hit) {
                 return DepthFirstSearchRecursive(i, targetVertexValue);
             }
         }
