@@ -1,11 +1,17 @@
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.Arrays.stream;
 
 class Vertex
 {
     public int Value;
+    public boolean hit;
+
     public Vertex(int val)
     {
         Value = val;
+        hit = false;
     }
 }
 
@@ -15,6 +21,7 @@ class SimpleGraph
     int [][] m_adjacency;
     int max_vertex;
     int emptySlot;
+    public Stack<Integer> stackToDFS;
 
     public SimpleGraph(int size)
     {
@@ -22,6 +29,7 @@ class SimpleGraph
         m_adjacency = new int [size][size];
         vertex = new Vertex[size];
         emptySlot = 0;
+        stackToDFS = new Stack<>();
     }
 
     public void AddVertex(int value)
@@ -79,6 +87,40 @@ class SimpleGraph
     {
         m_adjacency[v1][v2] = 0;
         m_adjacency[v2][v1] = 0;
+    }
+
+    public ArrayList<Vertex> DepthFirstSearch(int VFrom, int VTo)
+    {
+        stackToDFS.clear();
+        stream(vertex).forEach(v -> v.hit = false);
+        List<Integer> path =  DepthFirstSearchRecursive(VFrom, vertex[VTo].Value);
+
+        return (ArrayList<Vertex>) path.stream().map(index -> vertex[index]).collect(Collectors.toList());
+    }
+
+    private List<Integer> DepthFirstSearchRecursive(int currentVertexIndex, final int targetVertexValue) {
+        vertex[currentVertexIndex].hit = true;
+        stackToDFS.push(currentVertexIndex);
+
+        for (int i = 0; i < max_vertex; i++) {
+            if (m_adjacency[currentVertexIndex][i] != 0 && vertex[i].Value == targetVertexValue) {
+                stackToDFS.push(i);
+                return new ArrayList<>(stackToDFS);
+            }
+        }
+
+        for (int i = 0; i < max_vertex; i++) {
+            if (m_adjacency[currentVertexIndex][i] != 0 && !vertex[i].hit) {
+                return DepthFirstSearchRecursive(i, targetVertexValue);
+            }
+        }
+
+        stackToDFS.pop();
+        if (stackToDFS.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return DepthFirstSearchRecursive(stackToDFS.pop(), targetVertexValue);
     }
 }
 
