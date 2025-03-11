@@ -4,12 +4,12 @@ import java.util.stream.Collectors;
 class Vertex
 {
     public int Value;
-    public boolean hit;
+    public boolean Hit;
 
     public Vertex(int val)
     {
         Value = val;
-        hit = false;
+        Hit = false;
     }
 }
 
@@ -89,37 +89,65 @@ class SimpleGraph
 
     public ArrayList<Vertex> DepthFirstSearch(int VFrom, int VTo)
     {
-        stackToDFS.clear();
-        Arrays.stream(vertex).forEach(v -> v.hit = false);
-        List<Integer> path =  DepthFirstSearchRecursive(VFrom, vertex[VTo].Value);
+        if (max_vertex == 0 || VFrom < 0 || VFrom >= max_vertex || VTo < 0 || VTo >= max_vertex) {
+            return new ArrayList<>();
+        }
 
-        return (ArrayList<Vertex>) path.stream().map(index -> vertex[index]).collect(Collectors.toList());
+        Arrays.stream(vertex).forEach(v -> v.Hit = false);
+        stackToDFS.clear();
+
+        depthFirstSearchRecursive(VFrom, vertex[VTo].Value);
+        return (ArrayList<Vertex>) stackToDFS.stream()
+                .map(vertexIndex -> vertex[vertexIndex])
+                .collect(Collectors.toList());
     }
 
-    private List<Integer> DepthFirstSearchRecursive(final int currentVertexIndex, final int targetVertexValue) {
-        vertex[currentVertexIndex].hit = true;
-
+    private void depthFirstSearchRecursive(final int currentVertexIndex, final int targetVertexValue) {
+        vertex[currentVertexIndex].Hit = true;
         stackToDFS.push(currentVertexIndex);
 
         for (int i = 0; i < max_vertex; i++) {
             if (m_adjacency[currentVertexIndex][i] == 1 && vertex[i].Value == targetVertexValue) {
                 stackToDFS.push(i);
-                return new ArrayList<>(stackToDFS);
+                return;
             }
         }
 
         for (int i = 0; i < max_vertex; i++) {
-            if (m_adjacency[currentVertexIndex][i] == 1 && !vertex[i].hit) {
-                return DepthFirstSearchRecursive(i, targetVertexValue);
+            if (m_adjacency[currentVertexIndex][i] == 1 && !vertex[i].Hit) {
+                depthFirstSearchRecursive(i, targetVertexValue);
+                return;
             }
         }
 
         stackToDFS.pop();
         if (stackToDFS.isEmpty()) {
-            return new ArrayList<>();
+            return;
         }
 
-        return DepthFirstSearchRecursive(stackToDFS.pop(), targetVertexValue);
+        depthFirstSearchRecursive(stackToDFS.pop(), targetVertexValue);
+    }
+
+    public boolean isConnected() {
+        int startVertexIndex = -1;
+        for (int i = 0; i < max_vertex; i++) {
+            if (vertex[i] != null) {
+                startVertexIndex = i;
+                break;
+            }
+        }
+        
+        if (startVertexIndex == -1) {
+            return false;
+        }
+        
+        for (int i = startVertexIndex + 1; i < max_vertex; i++) {
+            if (vertex[i] != null && DepthFirstSearch(startVertexIndex, i).isEmpty()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 
