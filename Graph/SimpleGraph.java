@@ -149,5 +149,146 @@ class SimpleGraph
 
         return true;
     }
+
+    public ArrayList<Vertex> BreadthFirstSearch(int VFrom, int VTo)
+    {
+        if (max_vertex == 0 || VFrom < 0 || VFrom >= max_vertex || VTo < 0 || VTo >= max_vertex ||
+                vertex[VFrom] == null || vertex[VTo] == null) {
+            return new ArrayList<>();
+        }
+
+        queueToBFS.clear();
+        Arrays.stream(vertex).filter(Objects::nonNull).forEach(v -> v.Hit = false);
+
+        SimpleTreeNode<Integer> startVertex = new SimpleTreeNode<>(VFrom, null);
+        vertex[VFrom].Hit = true;
+        
+        return (ArrayList<Vertex>) breadthFirstSearchRecursive(startVertex, vertex[VTo].Value, new SimpleTree<>(startVertex))
+                .stream()
+                .map(index -> vertex[index])
+                .collect(Collectors.toList());
+    }
+
+    private List<Integer> breadthFirstSearchRecursive(SimpleTreeNode<Integer> currentVertex, final int targetVertexValue,
+                                                           SimpleTree<Integer> pathsTree) {
+        SimpleTreeNode<Integer> neighbor;
+        for (int i = 0; i < max_vertex; i++) {
+            if (vertex == null || m_adjacency[currentVertex.NodeValue][i] == 0) {
+                continue;
+            }
+            neighbor = new SimpleTreeNode<>(i, currentVertex);
+            if (vertex[i].Value == targetVertexValue) {
+                return buildPath(neighbor);
+            }
+            vertex[i].Hit = true;
+            queueToBFS.enqueue(neighbor);
+            pathsTree.AddChild(currentVertex, neighbor);
+        }
+
+        if (queueToBFS.size() == 0) {
+            return new ArrayList<>();
+        }
+
+        return breadthFirstSearchRecursive(queueToBFS.dequeue(), targetVertexValue, pathsTree);
+    }
+
+    private List<Integer> buildPath(SimpleTreeNode<Integer> endVertex) {
+        List<Integer> path = new ArrayList<>();
+        for (SimpleTreeNode<Integer> node = endVertex; node != null; node = node.Parent) {
+            path.add(0, node.NodeValue);
+        }
+
+        return path;
+    }
+}
+
+class SimpleTreeNode<T>
+{
+    public T NodeValue;
+    public SimpleTreeNode<T> Parent;
+    public List<SimpleTreeNode<T>> Children;
+    public int level;
+
+    public SimpleTreeNode(T val, SimpleTreeNode<T> parent)
+    {
+        NodeValue = val;
+        Parent = parent;
+        Children = null;
+    }
+}
+
+class SimpleTree<T>
+{
+    public SimpleTreeNode<T> Root;
+
+    public SimpleTree(SimpleTreeNode<T> root)
+    {
+        Root = root;
+    }
+
+    public void AddChild(SimpleTreeNode<T> ParentNode, SimpleTreeNode<T> NewChild)
+    {
+        if (ParentNode == null) {
+            Root = NewChild;
+            NewChild.level = 0;
+            return;
+        }
+
+        if (ParentNode.Children == null) {
+            ParentNode.Children = new ArrayList<>();
+        }
+
+        NewChild.Parent = ParentNode;
+        ParentNode.Children.add(NewChild);
+
+        NewChild.level = ParentNode.level + 1;
+        if (NewChild.Children == null) {
+            return;
+        }
+        incrementChildrenLevels(NewChild);
+    }
+
+    private void incrementChildrenLevels(SimpleTreeNode<T> parent) {
+        for (SimpleTreeNode<T> child: parent.Children) {
+            child.level = parent.level + 1;
+
+            if (child.Children != null) {
+                incrementChildrenLevels(child);
+            }
+        }
+    }
+}
+
+class Queue<T>
+{
+    List<T> storage;
+
+    public Queue()
+    {
+        storage = new ArrayList<>();
+    }
+
+    public void enqueue(T item)
+    {
+        storage.add(0, item);
+    }
+
+    public T dequeue()
+    {
+        if (storage.isEmpty()) {
+            return null;
+        }
+
+        return storage.remove(storage.size() - 1);
+    }
+
+    public int size()
+    {
+        return storage.size();
+    }
+
+    public void clear() {
+        storage.clear();
+    }
 }
 
