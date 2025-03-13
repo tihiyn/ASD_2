@@ -20,6 +20,7 @@ class SimpleGraph
     int max_vertex;
     int emptySlot;
     Stack<Integer> stackToDFS;
+    Queue<SimpleTreeNode<Integer>> queueToBFS;
 
     public SimpleGraph(int size)
     {
@@ -28,6 +29,7 @@ class SimpleGraph
         vertex = new Vertex[size];
         emptySlot = 0;
         stackToDFS = new Stack<>();
+        queueToBFS = new Queue<>();
     }
 
     public void AddVertex(int value)
