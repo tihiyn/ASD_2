@@ -78,7 +78,6 @@ class Graph
 
     public ArrayList<Vertex> DepthFirstSearch(int VFrom, int VTo)
     {
-        // если размер массива вершин равен 0 или один из индексов выходит за границы массива, то возвращаем пустой список
         if (max_vertex == 0 || VFrom < 0 || VFrom >= max_vertex || VTo < 0 || VTo >= max_vertex) {
             return new ArrayList<>();
         }
