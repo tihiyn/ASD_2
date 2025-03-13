@@ -78,6 +78,7 @@ class Graph
 
     public ArrayList<Vertex> DepthFirstSearch(int VFrom, int VTo)
     {
+        // если размер массива вершин равен 0 или один из индексов выходит за границы массива, то возвращаем пустой список
         if (max_vertex == 0 || VFrom < 0 || VFrom >= max_vertex || VTo < 0 || VTo >= max_vertex) {
             return new ArrayList<>();
         }
@@ -94,26 +95,27 @@ class Graph
     private void depthFirstSearchRecursive(final int currentVertexIndex, final int targetVertexValue) {
         vertex[currentVertexIndex].Hit = true;
         stackToDFS.push(currentVertexIndex);
-        
+
         for (int i = 0; i < max_vertex; i++) {
             if (m_adjacency[currentVertexIndex][i] == 1 && vertex[i].Value == targetVertexValue) {
                 stackToDFS.push(i);
                 return;
             }
         }
-        
+
         for (int i = 0; i < max_vertex; i++) {
             if (m_adjacency[currentVertexIndex][i] == 1 && !vertex[i].Hit) {
                 depthFirstSearchRecursive(i, targetVertexValue);
                 return;
             }
         }
-        
+
         stackToDFS.pop();
+
         if (stackToDFS.isEmpty()) {
             return;
         }
-        
+
         depthFirstSearchRecursive(stackToDFS.pop(), targetVertexValue);
     }
 
@@ -132,11 +134,11 @@ class Graph
                 break;
             }
         }
-        
+
         if (startVertexIndex == -1) {
             return false;
         }
-        
+
         for (int i = startVertexIndex + 1; i < max_vertex; i++) {
             if (vertex[i] != null && DepthFirstSearch(startVertexIndex, i).isEmpty()) {
                 return false;
@@ -144,6 +146,53 @@ class Graph
         }
 
         return true;
+    }
+
+    /*
+    Задание 11.
+    Задача 3.
+    Найти все циклы в неориентированном графе, используя BFS.
+    Временная сложность - O(2^V).
+    Пространственная сложность - O(2^V).
+     */
+    public List<List<Integer>> findAllCycles() {
+        List<List<Integer>> cycles = new ArrayList<>();
+
+        for (int i = 0; i < max_vertex; i++) {
+            Queue<List<Integer>> queue = new Queue<>();
+            queue.enqueue(Collections.singletonList(i));
+
+            while (queue.size() != 0) {
+                List<Integer> path = queue.dequeue();
+                int lastNode = path.get(path.size() - 1);
+
+                for (int j = 0; j < max_vertex; j++) {
+                    if (m_adjacency[lastNode][j] == 0) {
+                        continue;
+                    }
+
+                    if (path.size() > 2 && j == path.get(0)) {
+                        List<Integer> cycle = new ArrayList<>();
+                        for (int node : path) {
+                            cycle.add(vertex[node].Value);
+                        }
+                        cycle.add(vertex[j].Value);
+
+                        if (cycles.stream().noneMatch(c -> new HashSet<>(c).equals(new HashSet<>(cycle)))) {
+                            cycles.add(cycle);
+                        }
+                        continue;
+                    }
+
+                    if (!path.contains(j)) {
+                        List<Integer> newPath = new ArrayList<>(path);
+                        newPath.add(j);
+                        queue.enqueue(newPath);
+                    }
+                }
+            }
+        }
+        return cycles;
     }
 }
 
@@ -217,9 +266,9 @@ class DirectedGraph {
         if (Arrays.stream(vertex).allMatch(Objects::isNull)) {
             return false;
         }
-        
+
         Arrays.stream(vertex).forEach(v -> v.Hit = false);
-        
+
         for (int i = 0; i < max_vertex; i++) {
             if (!vertex[i].Hit && isCyclicRecursive(new HashSet<>(), i)) {
                 return true;
@@ -233,24 +282,24 @@ class DirectedGraph {
         if (path.contains(currentVertexIndex)) {
             return true;
         }
-        
+
         vertex[currentVertexIndex].Hit = true;
         path.add(currentVertexIndex);
-        
+
         for (int i = 0; i < max_vertex; i++) {
             if (m_adjacency[currentVertexIndex][i] == 0) {
                 continue;
             }
-            
+
             if (!vertex[i].Hit && isCyclicRecursive(path, i)) {
                 return true;
             }
-            
+
             if (vertex[i].Hit && path.contains(i)) {
                 return true;
             }
         }
-        
+
         path.remove(currentVertexIndex);
         return false;
     }
@@ -268,6 +317,7 @@ class DirectedGraph {
         }
 
         Arrays.stream(vertex).filter(Objects::nonNull).forEach(v -> v.Hit = false);
+
         AtomicInteger maxLength = new AtomicInteger(0);
         for (int i = 0; i < max_vertex; i++) {
             if (vertex[i] != null) {
@@ -283,19 +333,136 @@ class DirectedGraph {
         if (path.contains(currentVertexIndex)) {
             return;
         }
-        
+
         path.add(currentVertexIndex);
         if (currentLength > maxLength.get()) {
             maxLength.set(currentLength);
         }
-        
+
         for (int i = 0; i < max_vertex; i++) {
             if (vertex[i] != null && IsEdge(currentVertexIndex, i)) {
                 findLongestSimplePathRecursive(path, i, currentLength + 1, maxLength);
             }
         }
-        
+
         path.remove(currentVertexIndex);
+    }
+}
+
+class TreeNode<T>
+{
+    public T NodeValue;
+    public TreeNode<T> Parent;
+    public List<TreeNode<T>> Children;
+    public int level;
+
+    public TreeNode(T val, TreeNode<T> parent)
+    {
+        NodeValue = val;
+        Parent = parent;
+        Children = null;
+    }
+}
+
+class Tree<T>
+{
+    public TreeNode<T> Root;
+    public Queue<TreeNode<T>> queueToBFS;
+
+    public Tree(TreeNode<T> root)
+    {
+        Root = root;
+        queueToBFS = new Queue<>();
+    }
+
+    public void AddChild(TreeNode<T> ParentNode, TreeNode<T> NewChild)
+    {
+        if (ParentNode == null) {
+            Root = NewChild;
+            NewChild.level = 0;
+            return;
+        }
+
+        if (ParentNode.Children == null) {
+            ParentNode.Children = new ArrayList<>();
+        }
+
+        NewChild.Parent = ParentNode;
+        ParentNode.Children.add(NewChild);
+
+        NewChild.level = ParentNode.level + 1;
+        if (NewChild.Children == null) {
+            return;
+        }
+        incrementChildrenLevels(NewChild);
+    }
+
+    private void incrementChildrenLevels(TreeNode<T> parent) {
+        for (TreeNode<T> child: parent.Children) {
+            child.level = parent.level + 1;
+
+            if (child.Children != null) {
+                incrementChildrenLevels(child);
+            }
+        }
+    }
+
+    /*
+    Задание 11.
+    Задача 2.
+    Найти расстояние между двумя наиболее удалёнными узлами в дереве, используя BFS.
+    Временная сложность: O(V).
+    Пространственная сложность: O(V).
+     */
+    public int findLongestSimplePathLength() {
+        if (Root == null) {
+            return 0;
+        }
+
+        queueToBFS.clear();
+
+        TreeNode<T> startNode;
+        for (startNode = Root; startNode.Children.size() <= 1; startNode = startNode.Children.get(0)) {
+            if (startNode.Children.isEmpty()) {
+                return startNode.level;
+            }
+        }
+
+        List<Integer> childrenPathsLength = new ArrayList<>();
+        for (TreeNode<T> child: startNode.Children) {
+            childrenPathsLength.add(findLongestSimplePathLengthRecursive(child, new HashSet<>(Set.of(child.NodeValue))));
+        }
+
+        int startNodeLevel = startNode.level;
+        childrenPathsLength = childrenPathsLength.stream()
+                .map(pathLength -> pathLength - startNodeLevel)
+                .collect(Collectors.toList());
+
+        int firstMax = childrenPathsLength.stream().max(Integer::compareTo).orElse(0);
+        if (firstMax <= startNodeLevel) {
+            return firstMax + startNodeLevel;
+        }
+        childrenPathsLength.remove(firstMax);
+        int secondMax = childrenPathsLength.stream().max(Integer::compareTo).orElse(0);
+
+        return firstMax + secondMax;
+    }
+
+    private int findLongestSimplePathLengthRecursive(TreeNode<T> currentNode, Set<T> visitedNodes) {
+        for (TreeNode<T> child: currentNode.Children) {
+            if (child.Children.isEmpty()) {
+                return child.level;
+            }
+
+            visitedNodes.add(child.NodeValue);
+            queueToBFS.enqueue(child);
+        }
+
+        if (queueToBFS.size() == 0) {
+            return 0;
+        }
+
+        return findLongestSimplePathLengthRecursive(queueToBFS.dequeue(), visitedNodes);
     }
 }
 
