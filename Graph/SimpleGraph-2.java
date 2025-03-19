@@ -1,3 +1,5 @@
+import ru.hsp.Lesson_8_10_11_12.Queue;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -124,6 +126,11 @@ class Graph
     Является ли неориентированный граф связным.
     Временная сложность - O(V * (V + E)).
     Пространственная сложность - O(V).
+
+    Рефлексия:
+    Не додумался видоизменить DFS под текущую задачу, чтобы не строить маршрут в конкретную точку и выходить из алгоритма
+    при достижении этой точки, а просто обходить дерево до тех пор, пока стек не будет пуст. Из-за этого увеличилась
+    временная сложность. Но идею с достижимостью реализовал.
      */
     public boolean isConnected() {
         int startVertexIndex = -1;
@@ -192,6 +199,101 @@ class Graph
             }
         }
         return cycles;
+    }
+
+    /*
+    Задание 12.
+    Задача 1.
+    Подсчитать общее число треугольников в графе.
+    Временная сложность - O(V^3).
+    Пространственная сложность - O(V).
+     */
+    public int countTriangle() {
+        Arrays.stream(vertex).filter(Objects::nonNull).forEach(v -> v.Hit = false);
+
+        AtomicInteger triangleCounter = new AtomicInteger(0);
+        Set<Integer> belongTriangleSet = new HashSet<>();
+        Queue<Integer> queueToWeakVertices = new ru.hsp.Lesson_8_10_11_12.Queue<>();
+
+        for (int i = 0; i < max_vertex; i++) {
+            if (vertex[i] != null && !vertex[i].Hit) {
+                vertex[i].Hit = true;
+                countTriangleRecursive(triangleCounter, belongTriangleSet, queueToWeakVertices, i);
+            }
+        }
+
+        return triangleCounter.get();
+    }
+
+    private void countTriangleRecursive(AtomicInteger triangleCounter, Set<Integer> belongTriangleSet,
+                                        Queue<Integer> queueToWeakVertices, int currentVertexIndex) {
+        List<Integer> neighboursIndexes = getNeighbours(currentVertexIndex);
+        if (!belongTriangleSet.contains(currentVertexIndex) &&
+                isBelongTriangle(belongTriangleSet, neighboursIndexes, currentVertexIndex)) {
+            triangleCounter.incrementAndGet();
+        }
+
+        for (Integer neighboursIndex: neighboursIndexes) {
+            if (!vertex[neighboursIndex].Hit) {
+                vertex[neighboursIndex].Hit = true;
+                queueToWeakVertices.enqueue(neighboursIndex);
+            }
+        }
+
+        if (queueToWeakVertices.size() == 0) {
+            return;
+        }
+
+        countTriangleRecursive(triangleCounter, belongTriangleSet, queueToWeakVertices, queueToWeakVertices.dequeue());
+    }
+
+    private List<Integer> getNeighbours(int currentVertexIndex) {
+        List<Integer> neighboursIndexes = new ArrayList<>();
+        for (int i = 0; i < max_vertex; i++) {
+            if (vertex[i] != null && m_adjacency[currentVertexIndex][i] == 1) {
+                neighboursIndexes.add(i);
+            }
+        }
+
+        return neighboursIndexes;
+    }
+
+    private boolean isBelongTriangle(Set<Integer> belongTriangleSet, List<Integer> neighboursIndexes, int currentVrtexIndex) {
+        int neighboursCount = neighboursIndexes.size();
+        for (int i = 0; i < neighboursCount - 1; i++) {
+            for (int j = i + 1; j < neighboursCount; j++) {
+                if (m_adjacency[neighboursIndexes.get(i)][neighboursIndexes.get(j)] == 1) {
+                    belongTriangleSet.add(currentVrtexIndex);
+                    belongTriangleSet.add(neighboursIndexes.get(i));
+                    belongTriangleSet.add(neighboursIndexes.get(j));
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /*
+    Задание 12.
+    Задача 2.
+    Найти вершины не входящие в треугольники, используя только интерфейс графа.
+    Временная сложность - O(2^V).
+    Пространственная сложность - O(2^V).
+     */
+    public List<Integer> findVerticesNotInTriangles() {
+        List<Integer> vertexValues = new ArrayList<>();
+        Arrays.stream(vertex)
+                .filter(Objects::nonNull)
+                .forEach(v -> vertexValues.add(v.Value));
+
+        List<List<Integer>> cycles = findAllCycles();
+        cycles.stream()
+                .filter(cycle -> cycle.size() == 4)
+                .flatMap(List::stream)
+                .forEach(vertexValues::remove);
+
+        return vertexValues;
     }
 }
 
@@ -309,6 +411,9 @@ class DirectedGraph {
     Найти самый длинный простой путь в ориентированном графе
     Временная сложность - O(V * (V + E)).
     Пространственная сложность - O(V).
+
+    Рефлексия:
+    Решение совпадает с предложенным. Понравилось название для удаления вершины из списка посещённых - backtracking!
      */
     public int findLongestSimplePath() {
         if (Arrays.stream(vertex).allMatch(Objects::isNull)) {

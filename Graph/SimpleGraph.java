@@ -202,6 +202,73 @@ class SimpleGraph
 
         return path;
     }
+
+    public ArrayList<Vertex> WeakVertices()
+    {
+        Arrays.stream(vertex).filter(Objects::nonNull).forEach(v -> v.Hit = false);
+
+        ArrayList<Vertex> notBelongTriangleList = new ArrayList<>();
+        Set<Integer> belongTriangleSet = new HashSet<>();
+        Queue<Integer> queueToWeakVertices = new Queue<>();
+
+        for (int i = 0; i < max_vertex; i++) {
+            if (vertex[i] != null && !vertex[i].Hit) {
+                vertex[i].Hit = true;
+                weakVerticesRecursive(notBelongTriangleList, belongTriangleSet, queueToWeakVertices, i);
+            }
+        }
+
+        return notBelongTriangleList;
+    }
+
+    private void weakVerticesRecursive(ArrayList<Vertex> notBelongTriangleList, Set<Integer> belongTriangleSet,
+                                       Queue<Integer> queueToWeakVertices, int currentVertexIndex) {
+        List<Integer> neighboursIndexes = getNeighbours(currentVertexIndex);
+        if (!belongTriangleSet.contains(currentVertexIndex) &&
+                !isBelongTriangle(belongTriangleSet, neighboursIndexes, currentVertexIndex)) {
+            notBelongTriangleList.add(vertex[currentVertexIndex]);
+        }
+
+        for (Integer neighboursIndex: neighboursIndexes) {
+            if (!vertex[neighboursIndex].Hit) {
+                vertex[neighboursIndex].Hit = true;
+                queueToWeakVertices.enqueue(neighboursIndex);
+            }
+        }
+
+        if (queueToWeakVertices.size() == 0) {
+            return;
+        }
+
+        weakVerticesRecursive(notBelongTriangleList, belongTriangleSet, queueToWeakVertices, queueToWeakVertices.dequeue());
+    }
+
+    private List<Integer> getNeighbours(int currentVertexIndex) {
+        List<Integer> neighboursIndexes = new ArrayList<>();
+        for (int i = 0; i < max_vertex; i++) {
+            if (vertex[i] != null && m_adjacency[currentVertexIndex][i] == 1) {
+                neighboursIndexes.add(i);
+            }
+        }
+
+        return neighboursIndexes;
+    }
+
+    private boolean isBelongTriangle(Set<Integer> belongTriangleSet, List<Integer> neighboursIndexes, int currentVrtexIndex) {
+        int neighboursCount = neighboursIndexes.size();
+        for (int i = 0; i < neighboursCount - 1; i++) {
+            for (int j = i + 1; j < neighboursCount; j++) {
+                if (m_adjacency[neighboursIndexes.get(i)][neighboursIndexes.get(j)] == 1) {
+                    belongTriangleSet.add(currentVrtexIndex);
+                    belongTriangleSet.add(neighboursIndexes.get(i));
+                    belongTriangleSet.add(neighboursIndexes.get(j));
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }
 
 class SimpleTreeNode<T>
