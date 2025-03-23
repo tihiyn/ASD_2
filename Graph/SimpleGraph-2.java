@@ -11,7 +11,6 @@ class Graph
     int max_vertex;
     int emptySlot;
     Stack<Integer> stackToDFS;
-    Queue<TreeNode<Integer>> queueToBFS;
 
     public Graph(int size)
     {
@@ -174,164 +173,61 @@ class Graph
         List<List<Integer>> cycles = new ArrayList<>();
 
         for (int i = 0; i < max_vertex; i++) {
-            Queue<List<Integer>> queue = new Queue<>();
-            queue.enqueue(Collections.singletonList(i));
-
-            while (queue.size() != 0) {
-                List<Integer> path = queue.dequeue();
-                int lastNode = path.get(path.size() - 1);
-
-                for (int j = 0; j < max_vertex; j++) {
-                    if (m_adjacency[lastNode][j] == 0) {
-                        continue;
-                    }
-
-                    if (path.size() > 2 && j == path.get(0)) {
-                        List<Integer> cycle = new ArrayList<>();
-                        for (int node : path) {
-                            cycle.add(vertex[node].Value);
-                        }
-                        cycle.add(vertex[j].Value);
-
-                        if (cycles.stream().noneMatch(c -> new HashSet<>(c).equals(new HashSet<>(cycle)))) {
-                            cycles.add(cycle);
-                        }
-                        continue;
-                    }
-
-                    if (!path.contains(j)) {
-                        List<Integer> newPath = new ArrayList<>(path);
-                        newPath.add(j);
-                        queue.enqueue(newPath);
-                    }
-                }
+            if (vertex[i] != null) {
+                ru.hsp.Lesson_8_10_11_12.Queue<List<Integer>> queue = new ru.hsp.Lesson_8_10_11_12.Queue<>();
+                queue.enqueue(Collections.singletonList(i));
+                findAllCyclesRecursive(cycles, queue);
             }
         }
         return cycles;
     }
 
-    public List<List<Integer>> findCycles() {
-        queueToBFS.clear();
-        Arrays.stream(vertex).filter(Objects::nonNull).forEach(v -> v.Hit = false);
-
-        int startVertexIndex = -1;
-        for (int i = 0; i < max_vertex; i++) {
-            if (vertex[i] != null) {
-                startVertexIndex = i;
-                break;
-            }
-        }
-
-        List<List<Integer>> cycles = new ArrayList<>();
-        if (startVertexIndex == -1) {
-            return cycles;
-        }
-
-        TreeNode<Integer> startVertex = new TreeNode<>(startVertexIndex, null);
-        vertex[startVertexIndex].Hit = true;
-        queueToBFS.enqueue(startVertex);
-        Tree<Integer> pathsTree = new Tree<>(startVertex);
-        findCyclesRecursive(pathsTree);
+    private void findAllCyclesRecursive(List<List<Integer>> cycles, ru.hsp.Lesson_8_10_11_12.Queue<List<Integer>> queueBFS) {
+        List<Integer> path = queueBFS.dequeue();
+        int lastNode = path.get(path.size() - 1);
 
         for (int i = 0; i < max_vertex; i++) {
-            if (vertex[i] == null) {
+            if (vertex[i] == null || m_adjacency[lastNode][i] == 0) {
                 continue;
             }
 
-            List<TreeNode<Integer>> nodesInCycle = pathsTree.FindNodesByValue(i);
-            if (nodesInCycle.size() > 1) {
-                addCycle(cycles, nodesInCycle);
-            }
-        }
-
-        return cycles;
-    }
-
-    private void addCycle(List<List<Integer>> cycles, List<TreeNode<Integer>> nodesInCycle) {
-        for (int i = 0; i < nodesInCycle.size() - 1; i++) {
-            for (int j = i + 1; j < nodesInCycle.size(); j++) {
-                List<Integer> cycle = buildCycle(nodesInCycle.get(i), nodesInCycle.get(j));
-                if (isNewCycle(cycles, cycle)) {
+            if (path.size() > 2 && i == path.get(0)) {
+                List<Integer> cycle = new ArrayList<>(path);
+                List<Integer> revertedCycle = new ArrayList<>(cycle);
+                Collections.reverse(revertedCycle);
+                if (cycles.stream().noneMatch(c -> isCyclesEquals(c, cycle) || isCyclesEquals(c, revertedCycle))) {
                     cycles.add(cycle);
                 }
-            }
-        }
-    }
-
-    private List<Integer> buildCycle(TreeNode<Integer> start, TreeNode<Integer> finish) {
-        Deque<Integer> cycle = new ArrayDeque<>();
-
-        List<Integer> startToRoot = new ArrayList<>();
-        for (TreeNode<Integer> current = start; current.Parent != null; current = current.Parent) {
-            startToRoot.add(current.NodeValue);
-        }
-
-        List<Integer> finishToRoot = new ArrayList<>();
-        for (TreeNode<Integer> current = finish.Parent; current.Parent != null; current = current.Parent) {
-            finishToRoot.add(current.NodeValue);
-        }
-
-        int commonMax = findGreatestCommonMax(startToRoot, finishToRoot);
-        for (TreeNode<Integer> current = start; current.Parent != null; current = current.Parent) {
-            cycle.addLast(current.NodeValue);
-            if (current.NodeValue == commonMax) {
-                break;
-            }
-        }
-
-        for (TreeNode<Integer> current = finish.Parent; current.NodeValue != commonMax; current = current.Parent) {
-            cycle.addFirst(current.NodeValue);
-        }
-
-        return new ArrayList<>(cycle);
-    }
-
-    private int findGreatestCommonMax(List<Integer> firstList, List<Integer> secondList) {
-        Set<Integer> set1 = new HashSet<>(firstList);
-        Set<Integer> set2 = new HashSet<>(secondList);
-        set1.retainAll(set2);
-
-        return Collections.max(set1);
-    }
-
-    private boolean isNewCycle(List<List<Integer>> cycles, List<Integer> newCycle) {
-        for (List<Integer> cycle: cycles) {
-            if (Set.of(cycle).equals(Set.of(newCycle))) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private void findCyclesRecursive(Tree<Integer> pathsTree) {
-        TreeNode<Integer> currentVertex = queueToBFS.dequeue();
-        int previousVertexIndex = currentVertex.Parent == null ? -1 : currentVertex.Parent.NodeValue;
-
-        TreeNode<Integer> neighbour;
-        for (int i = 0; i < max_vertex; i++) {
-            if (vertex[i] == null || m_adjacency[currentVertex.NodeValue][i] == 0) {
                 continue;
             }
 
-            neighbour = new TreeNode<>(i, currentVertex);
-            if (!vertex[i].Hit) {
-                vertex[i].Hit = true;
-                queueToBFS.enqueue(neighbour);
-                pathsTree.AddChild(currentVertex, neighbour);
-                continue;
-            }
-
-            if (i != previousVertexIndex) {
-                pathsTree.AddChild(currentVertex, neighbour);
+            if (!path.contains(i)) {
+                List<Integer> newPath = new ArrayList<>(path);
+                newPath.add(i);
+                queueBFS.enqueue(newPath);
             }
         }
 
-        if (queueToBFS.size() == 0) {
+        if (queueBFS.size() == 0) {
             return;
         }
 
-        findCyclesRecursive(pathsTree);
+        findAllCyclesRecursive(cycles, queueBFS);
+    }
+
+    private boolean isCyclesEquals(List<Integer> existingCycle, List<Integer> cycle) {
+        if (existingCycle.size() != cycle.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < existingCycle.size(); i++) {
+            Collections.rotate(cycle, 1);
+            if (existingCycle.equals(cycle)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /*
