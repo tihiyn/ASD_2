@@ -1,4 +1,4 @@
-import ru.hsp.Lesson_8_10_11_12.Queue;
+import Queue;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -11,6 +11,7 @@ class Graph
     int max_vertex;
     int emptySlot;
     Stack<Integer> stackToDFS;
+    Queue<TreeNode<Integer>> queueToBFS;
 
     public Graph(int size)
     {
@@ -160,6 +161,14 @@ class Graph
     Найти все циклы в неориентированном графе, используя BFS.
     Временная сложность - O(2^V).
     Пространственная сложность - O(2^V).
+
+    Рефлексия:
+    Это единственная задача на курсе, с которой я не справился. Решение ниже из интернета. После отправки стал решать сам.
+    Написал своё решение (метод findCycles). Написал тесты. Один тест те проходит. Этот же тест написал и для решения из
+    интернета, но всё равно тест не проходит. Начал смотреть эталонное решение, но не нашёл в нём ответа на главный вопрос,
+    как формировать и сохранять циклы. Фраза "Запоминаем его некоторым образом (например как текущий путь)" лишь говорит
+    о том, что для формирования цикла нужно сохранить путь, но сам путь не будет являться циклом (из-за специфики BFS).
+    В целом, пришёл к выводу, что для этой задачи лучше использовать DFS.
      */
     public List<List<Integer>> findAllCycles() {
         List<List<Integer>> cycles = new ArrayList<>();
@@ -201,19 +210,147 @@ class Graph
         return cycles;
     }
 
+    public List<List<Integer>> findCycles() {
+        queueToBFS.clear();
+        Arrays.stream(vertex).filter(Objects::nonNull).forEach(v -> v.Hit = false);
+
+        int startVertexIndex = -1;
+        for (int i = 0; i < max_vertex; i++) {
+            if (vertex[i] != null) {
+                startVertexIndex = i;
+                break;
+            }
+        }
+
+        List<List<Integer>> cycles = new ArrayList<>();
+        if (startVertexIndex == -1) {
+            return cycles;
+        }
+
+        TreeNode<Integer> startVertex = new TreeNode<>(startVertexIndex, null);
+        vertex[startVertexIndex].Hit = true;
+        queueToBFS.enqueue(startVertex);
+        Tree<Integer> pathsTree = new Tree<>(startVertex);
+        findCyclesRecursive(pathsTree);
+
+        for (int i = 0; i < max_vertex; i++) {
+            if (vertex[i] == null) {
+                continue;
+            }
+
+            List<TreeNode<Integer>> nodesInCycle = pathsTree.FindNodesByValue(i);
+            if (nodesInCycle.size() > 1) {
+                addCycle(cycles, nodesInCycle);
+            }
+        }
+
+        return cycles;
+    }
+
+    private void addCycle(List<List<Integer>> cycles, List<TreeNode<Integer>> nodesInCycle) {
+        for (int i = 0; i < nodesInCycle.size() - 1; i++) {
+            for (int j = i + 1; j < nodesInCycle.size(); j++) {
+                List<Integer> cycle = buildCycle(nodesInCycle.get(i), nodesInCycle.get(j));
+                if (isNewCycle(cycles, cycle)) {
+                    cycles.add(cycle);
+                }
+            }
+        }
+    }
+
+    private List<Integer> buildCycle(TreeNode<Integer> start, TreeNode<Integer> finish) {
+        Deque<Integer> cycle = new ArrayDeque<>();
+
+        List<Integer> startToRoot = new ArrayList<>();
+        for (TreeNode<Integer> current = start; current.Parent != null; current = current.Parent) {
+            startToRoot.add(current.NodeValue);
+        }
+
+        List<Integer> finishToRoot = new ArrayList<>();
+        for (TreeNode<Integer> current = finish.Parent; current.Parent != null; current = current.Parent) {
+            finishToRoot.add(current.NodeValue);
+        }
+
+        int commonMax = findGreatestCommonMax(startToRoot, finishToRoot);
+        for (TreeNode<Integer> current = start; current.Parent != null; current = current.Parent) {
+            cycle.addLast(current.NodeValue);
+            if (current.NodeValue == commonMax) {
+                break;
+            }
+        }
+
+        for (TreeNode<Integer> current = finish.Parent; current.NodeValue != commonMax; current = current.Parent) {
+            cycle.addFirst(current.NodeValue);
+        }
+
+        return new ArrayList<>(cycle);
+    }
+
+    private int findGreatestCommonMax(List<Integer> firstList, List<Integer> secondList) {
+        Set<Integer> set1 = new HashSet<>(firstList);
+        Set<Integer> set2 = new HashSet<>(secondList);
+        set1.retainAll(set2);
+
+        return Collections.max(set1);
+    }
+
+    private boolean isNewCycle(List<List<Integer>> cycles, List<Integer> newCycle) {
+        for (List<Integer> cycle: cycles) {
+            if (Set.of(cycle).equals(Set.of(newCycle))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void findCyclesRecursive(Tree<Integer> pathsTree) {
+        TreeNode<Integer> currentVertex = queueToBFS.dequeue();
+        int previousVertexIndex = currentVertex.Parent == null ? -1 : currentVertex.Parent.NodeValue;
+
+        TreeNode<Integer> neighbour;
+        for (int i = 0; i < max_vertex; i++) {
+            if (vertex[i] == null || m_adjacency[currentVertex.NodeValue][i] == 0) {
+                continue;
+            }
+
+            neighbour = new TreeNode<>(i, currentVertex);
+            if (!vertex[i].Hit) {
+                vertex[i].Hit = true;
+                queueToBFS.enqueue(neighbour);
+                pathsTree.AddChild(currentVertex, neighbour);
+                continue;
+            }
+
+            if (i != previousVertexIndex) {
+                pathsTree.AddChild(currentVertex, neighbour);
+            }
+        }
+
+        if (queueToBFS.size() == 0) {
+            return;
+        }
+
+        findCyclesRecursive(pathsTree);
+    }
+
     /*
     Задание 12.
     Задача 1.
     Подсчитать общее число треугольников в графе.
     Временная сложность - O(V^3).
     Пространственная сложность - O(V).
+
+    Рефлексия:
+    Идея с делением количества на 3 или 6 не очень нравится, потому что не надёжно и зависит от реализации. А вот идея
+    со множеством из строк красивая! Печально, конечно, что всё равно O(V^3).
      */
     public int countTriangle() {
         Arrays.stream(vertex).filter(Objects::nonNull).forEach(v -> v.Hit = false);
 
         AtomicInteger triangleCounter = new AtomicInteger(0);
         Set<Integer> belongTriangleSet = new HashSet<>();
-        Queue<Integer> queueToWeakVertices = new ru.hsp.Lesson_8_10_11_12.Queue<>();
+        Queue<Integer> queueToWeakVertices = new Queue<>();
 
         for (int i = 0; i < max_vertex; i++) {
             if (vertex[i] != null && !vertex[i].Hit) {
@@ -280,6 +417,12 @@ class Graph
     Найти вершины не входящие в треугольники, используя только интерфейс графа.
     Временная сложность - O(2^V).
     Пространственная сложность - O(2^V).
+
+    Рефлексия:
+    Как будто не совсем честно, что мы изменяем возвращаемое значение метода из предыдущей задачи. Либо я не правильно
+    понимаю значение "только через интерфейс класса". Предложенное решение лучше моего, потому что в своём решении
+    я использую метод для поиска всех циклом в графе, временная сложность которого экспоненциальная, а здесь используется
+    метод подсчёта треугольников, временная сложность которого O(V^3).
      */
     public List<Integer> findVerticesNotInTriangles() {
         List<Integer> vertexValues = new ArrayList<>();
@@ -517,6 +660,12 @@ class Tree<T>
     Найти расстояние между двумя наиболее удалёнными узлами в дереве, используя BFS.
     Временная сложность: O(V).
     Пространственная сложность: O(V).
+
+    Рефлексия:
+    Эталонное решение более понятное, чем моё, и оно более универсальное (можно распространить на произвольный граф).
+    Но, кажется, что в этом решении мы 2 раза обойдём всё дерево, а в моём решении всего один раз, но после прохода
+    выполняются ещё дополнительные вычисления для поиска 2 максимумов. Как бы то ни было, в обоих случаях временная
+    сложность O(V).
      */
     public int findLongestSimplePathLength() {
         if (Root == null) {
@@ -567,6 +716,31 @@ class Tree<T>
         }
 
         return findLongestSimplePathLengthRecursive(queueToBFS.dequeue(), visitedNodes);
+    }
+
+    public List<TreeNode<T>> FindNodesByValue(T val)
+    {
+        if (Root == null) {
+            return new ArrayList<>();
+        }
+
+        return FindNodesByValueRecursive(Root, val);
+    }
+
+    private List<TreeNode<T>> FindNodesByValueRecursive(TreeNode<T> parent, final T val) {
+        List<TreeNode<T>> equalsNodes = new ArrayList<>();
+        if (parent.NodeValue.equals(val)) {
+            equalsNodes.add(parent);
+        }
+
+        List<TreeNode<T>> children = parent.Children;
+        if (children == null) {
+            return equalsNodes;
+        }
+
+        children.forEach(child -> equalsNodes.addAll(FindNodesByValueRecursive(child, val)));
+
+        return equalsNodes;
     }
 }
 
